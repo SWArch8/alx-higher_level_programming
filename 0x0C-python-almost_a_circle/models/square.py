@@ -1,51 +1,74 @@
 #!/usr/bin/python3
-""" module that defines a class Square that inherits from Rectangle """
-
+"""
+    contains class Square implements class Rectangle
+"""
 from models.rectangle import Rectangle
 
 
 class Square(Rectangle):
-    """ class Square definition """
-
+    """
+        Square implements rectangle
+    """
     def __init__(self, size, x=0, y=0, id=None):
-        """ class Rectangle object constructor """
+        """
+            initialises Square (overrides Rectangle init)
+        """
         super().__init__(size, size, x, y, id)
 
     @property
     def size(self):
-        """ get method returns size """
+        """
+            returns the size of the square
+        """
         return self.width
 
     @size.setter
-    def size(self, size):
-        """ set method sets private attr, size """
-        self.width = size
-        self.height = size
+    def size(self, value):
+        """
+            sets the value of size
+        """
+        if type(value) != int:
+            raise TypeError("width must be an integer")
+        if value <= 0:
+            raise ValueError("width must be > 0")
+
+        self.width = value
+        self.height = value
 
     def update(self, *args, **kwargs):
-        """ assigns an argument to each attribute """
-        if args:
-            attr = ["id", "size", "x", "y"]
-            for key, value in enumerate(args):
-                setattr(self, attr[key], value)
-        else:
-            for key, value in kwargs.items():
-                if hasattr(self, key):
-                    setattr(self, key, value)
+        """
+            assigns key/value argument to attributes
+            kwargs is skipped if args is not empty
+            Args:
+                *args -  variable number of no-keyword args
+                **kwargs - variable number of keyworded args
+        """
+        if len(args) == 0:
+            for key, val in kwargs.items():
+                self.__setattr__(key, val)
+            return
+
+        try:
+            self.id = args[0]
+            self.size = args[1]
+            self.x = args[2]
+            self.y = args[3]
+        except IndexError:
+            pass
 
     def __str__(self):
-        """ returns string repr of Square instance """
-        return "[Square] ({}) {}/{} - {}".\
-            format(self.id, self.x, self.y, self.width)
+        """
+            Overloading str function
+        """
+        return "[{}] ({}) {}/{} - {}".format(type(self).__name__,
+                                             self.id, self.x, self.y,
+                                             self.width)
 
     def to_dictionary(self):
-        """ returns the dictionary representation of a Square """
-        new = {}
-        for key, value in vars(self).items():
-            if key == "_Rectangle__width":
-                new["size"] = value
-            elif key == "_Rectangle__height":
-                continue
-            else:
-                new[key.split('_')[-1]] = value
-        return new
+        """
+            Returns the dictionary representation of a Square
+        """
+        return {'id': getattr(self, "id"),
+                'size': getattr(self, "width"),
+                'x': getattr(self, "x"),
+                'y': getattr(self, "y")}
